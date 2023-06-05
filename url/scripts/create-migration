@@ -10,8 +10,15 @@ then
   exit 1
 fi
 
+echo "Drop existing gorm database"
+PGPASSWORD=local dropdb -h localhost -p 9500 -U atlas-gorm-6kd2 -w gorm-url --maintenance-db url --force || true
+
 echo "Running gorm auto-migrate"
 encore alpha exec ./scripts/gorm-automigrate
 
 echo "Creating migration file"
-atlas migrate diff --env local --to "postgresql://atlas-gorm-6kd2:local@localhost:9500/gorm-url?sslmode=disable" "$name"
+atlas migrate diff \
+  --dir-format golang-migrate \
+  --dev-url "docker://postgres/15" \
+  --to "postgresql://atlas-gorm-6kd2:local@localhost:9500/gorm-url?sslmode=disable" \
+  "$name"
