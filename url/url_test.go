@@ -23,6 +23,9 @@ func TestShortenAndRetrieve(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Expect visit count to be increased by one.
+	firstURL.VisitCount++
 	if *gotURL != *firstURL {
 		t.Errorf("got %v, want %v", *gotURL, *firstURL)
 	}
