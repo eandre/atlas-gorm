@@ -11,8 +11,9 @@ import (
 )
 
 type URL struct {
-	ID  string // short-form URL id
-	URL string // complete URL, in long form
+	ID         string // short-form URL id
+	URL        string // complete URL, in long form
+	VisitCount int    // number of times visited
 }
 
 type ShortenParams struct {
@@ -39,10 +40,13 @@ func (s *Service) Shorten(ctx context.Context, p *ShortenParams) (*URL, error) {
 //encore:api public method=GET path=/url/:id
 func (s *Service) Get(ctx context.Context, id string) (*URL, error) {
 	var url URL
-	if err := s.db.Where("id = $1", id).First(&url).Error; err != nil {
-		return nil, err
-	}
-	return &url, nil
+	err := s.db.
+		Model(&url).
+		Where("id = ?", id).
+		Update("visit_count", gorm.Expr("visit_count + 1")).
+		First(&url).
+		Error
+	return &url, err
 }
 
 type ListResponse struct {
