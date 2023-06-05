@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+name="$1"
+
+if [ "$name" = "" ]
+then
+  echo "Usage: create-migration name_of_migration"
+  exit 1
+fi
+
+echo "Running gorm auto-migrate"
+encore alpha exec ./scripts/gorm-automigrate
+
+echo "Creating migration file"
+atlas migrate diff --env local --to "postgresql://atlas-gorm-6kd2:local@localhost:9500/gorm-url?sslmode=disable" "$name"
